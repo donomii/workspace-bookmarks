@@ -5,9 +5,9 @@
   "version": "0.0.1",
   "publisher": "Jeremy Price",
   "repository": {
-  "type": "git",
-  "url": "https://github.com/donomii/workspace-bookmarks.git"
-},
+    "type": "git",
+    "url": "https://github.com/donomii/workspace-bookmarks.git"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -33,6 +33,27 @@
       ]
     },
     "commands": [
+      {
+        "command": "workspaceBookmarks.addFromCursor",
+        "title": "Add Bookmark",
+        "icon": {
+          "light": "media/add-light.svg",
+          "dark": "media/add-dark.svg"
+        }
+      },
+      {
+        "command": "workspaceBookmarks.clearAll",
+        "title": "Clear All Bookmarks",
+        "icon": {
+          "light": "media/clear-light.svg",
+          "dark": "media/clear-dark.svg"
+        }
+      },
+      {
+        "command": "workspaceBookmarks.delete",
+        "title": "Delete Bookmark",
+        "icon": "trash"
+      },
       {
         "command": "workspaceBookmarks.toggle",
         "title": "Toggle Bookmark"
@@ -84,6 +105,25 @@
           "command": "workspaceBookmarks.toggle",
           "when": "editorTextFocus",
           "group": "navigation@3"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "workspaceBookmarks.addFromCursor",
+          "when": "view == workspaceBookmarks.view",
+          "group": "navigation"
+        },
+        {
+          "command": "workspaceBookmarks.clearAll",
+          "when": "view == workspaceBookmarks.view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "workspaceBookmarks.delete",
+          "when": "view == workspaceBookmarks.view && viewItem == workspaceBookmarkItem",
+          "group": "inline"
         }
       ]
     }
