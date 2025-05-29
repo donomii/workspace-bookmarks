@@ -17,10 +17,9 @@ export function activate(context: vscode.ExtensionContext) {
     gutterIconSize: "100%",
   });
 
-  // Inline cursor line decoration with command link
   const cursorLineDecorationType = vscode.window.createTextEditorDecorationType({
     after: {
-      contentText: ' 🔖',
+      contentText: '',
       margin: '0 0 0 1em',
       color: new vscode.ThemeColor('editorLineNumber.foreground'),
     },
@@ -35,34 +34,38 @@ export function activate(context: vscode.ExtensionContext) {
     editor.setDecorations(decorationType, ranges);
   }
 
-  // Inline clickable decoration at the end of the current line
   function updateCursorLine(editor: vscode.TextEditor) {
     const line = editor.selection.active.line;
-    const isBookmarked = manager.getAll().some(b =>
-      b.uri.toString() === editor.document.uri.toString() && b.line === line);
+    const isBookmarked = manager.getAll().some(
+      (b) => b.uri.toString() === editor.document.uri.toString() && b.line === line
+    );
 
-    const icon = isBookmarked ? '✖' : '🔖';
-    const range = new vscode.Range(line, editor.document.lineAt(line).range.end.character, line, editor.document.lineAt(line).range.end.character);
+    const icon = isBookmarked ? "✖" : "🔖";
+    const range = new vscode.Range(
+      line,
+      editor.document.lineAt(line).range.end.character,
+      line,
+      editor.document.lineAt(line).range.end.character
+    );
+
+    const isMac = process.platform === "darwin";
+    const shortcut = isMac ? "⌥B" : "Alt+B";
+    const args = encodeURIComponent(JSON.stringify([editor.document.uri, line]));
+
+    const hover = new vscode.MarkdownString(`[Toggle Bookmark](command:workspaceBookmarks.toggleFromLine?${args})\n\n_(Shortcut: ${shortcut})_`);
+    hover.isTrusted = true;
 
     const decoration = {
       range,
       renderOptions: {
         after: {
           contentText: ` ${icon}`,
-          margin: '0 0 0 1em',
-          color: new vscode.ThemeColor('editorLineNumber.foreground'),
-        }
+          margin: "0 0 0 1em",
+          color: new vscode.ThemeColor("editorLineNumber.foreground"),
+          textDecoration: "none;cursor:pointer;",
+        },
       },
-      hoverMessage: 'Click to toggle bookmark'
-    };
-
-    // Hack: bind click via commandUri
-    const commandUri = vscode.Uri.parse(`command:workspaceBookmarks.toggleFromLine?${encodeURIComponent(JSON.stringify([editor.document.uri, line]))}`);
-    (decoration as any).renderOptions.after.contentText = ` ${icon}`;
-    (decoration as any).renderOptions.after.textDecoration = `none;cursor:pointer;`;
-    (decoration as any).renderOptions.after.command = {
-      command: 'workspaceBookmarks.toggleFromLine',
-      arguments: [editor.document.uri, line]
+      hoverMessage: hover,
     };
 
     editor.setDecorations(cursorLineDecorationType, [decoration]);
@@ -76,7 +79,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
-  // Commands
   context.subscriptions.push(
     vscode.commands.registerCommand("workspaceBookmarks.toggle", () => {
       const editor = vscode.window.activeTextEditor;
@@ -119,20 +121,57 @@ export function activate(context: vscode.ExtensionContext) {
     }),
 
     vscode.commands.registerCommand("workspaceBookmarks.toggleFromLine", (uri: vscode.Uri, line: number) => {
-      vscode.workspace.openTextDocument(uri).then(doc => {
+      vscode.workspace.openTextDocument(uri).then((doc) => {
         manager.toggle(doc, line);
         manager.save(context);
         tree.refresh();
-        const editor = vscode.window.visibleTextEditors.find(e => e.document.uri.toString() === uri.toString());
+        const editor = vscode.window.visibleTextEditors.find(
+          (e) => e.document.uri.toString() === uri.toString()
+        );
         if (editor) {
           updateGutter(editor);
           updateCursorLine(editor);
         }
       });
+    }),
+
+    vscode.commands.registerCommand("workspaceBookmarks.clearAll", () => {
+      manager.clear();
+      manager.save(context);
+      tree.refresh();
+      updateActive();
+    }),
+
+    vscode.commands.registerCommand("workspaceBookmarks.addFromCursor", () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) return;
+      manager.toggle(editor.document, editor.selection.active.line);
+      manager.save(context);
+      tree.refresh();
+      updateGutter(editor);
+      updateCursorLine(editor);
+    }),
+
+    vscode.commands.registerCommand("workspaceBookmarks.delete", (b: Bookmark) => {
+      const list = manager.getAll();
+      const idx = list.findIndex(
+        (x) => x.uri.toString() === b.uri.toString() && x.line === b.line
+      );
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        manager.clear();
+        list.forEach((x) => {
+          vscode.workspace.openTextDocument(x.uri).then((doc) => {
+            manager.toggle(doc, x.line);
+          });
+        });
+        manager.save(context);
+        tree.refresh();
+        updateActive();
+      }
     })
   );
 
-  // Gutter decoration updates
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(updateActive),
     vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
@@ -142,7 +181,7 @@ export function activate(context: vscode.ExtensionContext) {
         updateCursorLine(ed);
       }
     }),
-    vscode.window.onDidChangeTextEditorSelection(e => {
+    vscode.window.onDidChangeTextEditorSelection((e) => {
       if (e.textEditor === vscode.window.activeTextEditor) {
         updateCursorLine(e.textEditor);
       }
