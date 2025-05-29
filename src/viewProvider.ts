@@ -57,5 +57,9 @@ class BookmarkItem extends vscode.TreeItem {
     };
     this.iconPath = new vscode.ThemeIcon("bookmark");
     this.contextValue = "workspaceBookmarkItem";
+
+    const args = encodeURIComponent(JSON.stringify([this.bookmark]));
+    this.tooltip = new vscode.MarkdownString(`[❌ Delete](command:workspaceBookmarks.delete?${args})`);
+    this.tooltip.isTrusted = true;
   }
 }

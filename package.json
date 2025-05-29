@@ -52,7 +52,9 @@
       {
         "command": "workspaceBookmarks.delete",
         "title": "Delete Bookmark",
-        "icon": "trash"
+        "icon": {
+          "id": "trash"
+        }
       },
       {
         "command": "workspaceBookmarks.toggle",
