@@ -1,0 +1,101 @@
+{
+  "name": "workspace-bookmarks",
+  "displayName": "Workspace Bookmarks",
+  "description": "Quickly bookmark lines and jump around your project.",
+  "version": "0.0.1",
+  "publisher": "Jeremy Price",
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/donomii/workspace-bookmarks.git"
+},
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:workspaceBookmarks.toggle",
+    "onCommand:workspaceBookmarks.next",
+    "onCommand:workspaceBookmarks.prev",
+    "onView:workspaceBookmarks.view"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "workspaceBookmarks",
+          "title": "Bookmarks",
+          "icon": "media/bookmark.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "workspaceBookmarks.toggle",
+        "title": "Toggle Bookmark"
+      },
+      {
+        "command": "workspaceBookmarks.next",
+        "title": "Next Bookmark"
+      },
+      {
+        "command": "workspaceBookmarks.prev",
+        "title": "Previous Bookmark"
+      },
+      {
+        "command": "workspaceBookmarks.clearAll",
+        "title": "Clear All Bookmarks"
+      }
+    ],
+    "views": {
+      "workspaceBookmarks": [
+        {
+          "id": "workspaceBookmarks.view",
+          "name": "Bookmarks"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "workspaceBookmarks.toggle",
+        "key": "alt+b",
+        "mac": "alt+b",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "workspaceBookmarks.next",
+        "key": "alt+n",
+        "mac": "alt+n",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "workspaceBookmarks.prev",
+        "key": "alt+p",
+        "mac": "alt+p",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "workspaceBookmarks.toggle",
+          "when": "editorTextFocus",
+          "group": "navigation@3"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.24",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.4.0",
+    "vsce": "latest"
+  }
+}
