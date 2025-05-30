@@ -3,7 +3,7 @@
   "displayName": "Workspace Bookmarks",
   "description": "Quickly bookmark lines and jump around your project.",
   "version": "0.0.1",
-  "publisher": "Jeremy Price",
+  "publisher": "JeremyPrice",
   "repository": {
     "type": "git",
     "url": "https://github.com/donomii/workspace-bookmarks.git"
@@ -71,6 +71,10 @@
       {
         "command": "workspaceBookmarks.clearAll",
         "title": "Clear All Bookmarks"
+      },
+      {
+        "command": "workspaceBookmarks.toggleFromSidebar",
+        "title": "Toggle Bookmark"
       }
     ],
     "views": {
@@ -117,6 +121,11 @@
         },
         {
           "command": "workspaceBookmarks.clearAll",
+          "when": "view == workspaceBookmarks.view",
+          "group": "navigation"
+        },
+        {
+          "command": "workspaceBookmarks.toggleFromSidebar",
           "when": "view == workspaceBookmarks.view",
           "group": "navigation"
         }

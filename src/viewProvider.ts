@@ -17,8 +17,17 @@ export class BookmarkTreeProvider implements vscode.TreeDataProvider<vscode.Tree
   private _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  constructor(private manager: BookmarkManager) {
+  constructor(private manager: BookmarkManager, private context: vscode.ExtensionContext) {
     this.manager.onDidChange(() => this.refresh());
+    vscode.commands.registerCommand("workspaceBookmarks.toggleFromSidebar", () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) return;
+
+      const line = editor.selection.active.line;
+      this.manager.toggle(editor.document, line);
+      this.manager.save(this.context);
+      this.refresh();
+    });
   }
 
   getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
@@ -30,8 +39,7 @@ export class BookmarkTreeProvider implements vscode.TreeDataProvider<vscode.Tree
       return [];
     }
     return [
-      new CommandItem("➕ Add from Cursor", "workspaceBookmarks.addFromCursor", "add"),
-      new CommandItem("🗑️ Clear All Bookmarks", "workspaceBookmarks.clearAll", "trash"),
+      
       ...this.manager.getAll().map(
         (b) =>
           new BookmarkItem(

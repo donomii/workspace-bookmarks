@@ -7,7 +7,7 @@ const manager = new BookmarkManager();
 export function activate(context: vscode.ExtensionContext) {
   manager.load(context);
 
-  const tree = new BookmarkTreeProvider(manager);
+  const tree = new BookmarkTreeProvider(manager, context);
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("workspaceBookmarks.view", tree)
   );
